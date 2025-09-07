@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Votação - Legisla Net</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="../css/global.css">
+
+    <style>
+        /* ESTILOS ESPECÍFICOS DO PAINEL DE VOTAÇÃO */
+        /* Layout do Painel de Votação */
+        
+        .votacao-layout { 
+            display: grid; 
+            grid-template-columns: 1fr 2fr; 
+            gap: 24px; 
+            flex-grow: 1; 
+        }
+        .info-column, .votantes-column { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px; 
+        }
+        .info-card { 
+            background-color: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            padding: 24px; 
+        }
+        .info-card h3 { 
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            color: var(--secondary-text); 
+            margin-bottom: 8px; 
+        }
+        .info-card p, .info-card a { 
+            font-size: 1rem; 
+            color: var(--primary-text); 
+        }
+        .info-card a { 
+            color: var(--accent-blue); 
+            text-decoration: none; 
+            font-weight: 500; 
+        }
+        .info-card a:hover { 
+            text-decoration: underline; 
+        }
+        .qr-code-container { 
+            text-align: center; 
+        }
+        .qr-code-container img { 
+            width: 100%; 
+            max-width: 200px; 
+            height: auto; 
+            border-radius: 8px; 
+            border: 4px solid var(--border-color); 
+            margin-bottom: 12px; 
+        }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 200px; 
+            margin: 0 auto; 
+        }
+
+        /* Grid de Votantes */
+        .votantes-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+            gap: 16px; 
+        }
+        .votante-card { 
+            background-color: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            padding: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        .votante-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .votante-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .votante-avatar { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+        }
+        .votante-name { 
+            font-weight: 600; 
+        }
+        .votante-timestamp { 
+            font-size: 0.75rem; 
+            color: var(--secondary-text); 
+        }
+        .tag { 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            padding: 4px 8px; 
+            border-radius: 99px; 
+        }
+        .tag-presidente { 
+            background-color: rgba(240, 136, 51, 0.2); 
+            color: var(--accent-orange); 
+        }
+
+        .voto-display {
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--primary-text);
+            opacity: 0.9;
+        }
+        .voto-sim { background-color: var(--accent-green); }
+        .voto-nao { background-color: var(--accent-red); }
+        .voto-abstencao { background-color: var(--accent-orange); }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 1024px) { 
+            .votacao-layout { 
+                grid-template-columns: 1fr; 
+            } 
+        }
+        @media (max-width: 768px) {
+            .votantes-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content" id="mainContent">
+            
+            <div id="header-placeholder"></div>
+
+            <div class="votacao-layout fade-in">
+                <div class="info-column">
+                    <div class="info-card">
+                        <h3>Denúncia - 2ª votação</h3>
+                        <p style="color: var(--secondary-text); font-size: 0.875rem; margin-bottom: 16px;">Atualizado em 06/08/2025 às 18:14:58</p>
+                        <span class="badge-aprovado">Aprovado</span>
+                    </div>
+                    <div class="info-card">
+                        <h3>Descrição da pauta</h3>
+                        <p>Denúncia com pedido de instauração de Comissão Parlamentar de Inquérito</p>
+                    </div>
+                    <div class="info-card qr-code-container">
+                        <h3>QR Code da Pauta</h3>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://camara-digital.vercel.app/pauta/123" alt="QR Code da Pauta">
+                        <p style="font-size: 0.875rem; color: var(--secondary-text );">Escaneie para acessar o documento da pauta</p>
+                        <a href="#">Abrir documento</a>
+                    </div>
+                    <div class="info-card">
+                        <h3>Votos</h3>
+                        <div class="chart-container">
+                            <canvas id="votacaoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="votantes-column">
+                    <div class="votantes-grid">
+                        <div class="votante-card">
+                            <div class="votante-header">
+                                <div class="votante-info">
+                                    <img src="https://i.pravatar.cc/50?u=ramon" alt="Avatar" class="votante-avatar">
+                                    <span class="votante-name">RAMON BELO</span>
+                                </div>
+                                <span class="tag tag-presidente">Presidente</span>
+                            </div>
+                            <div class="votante-timestamp">Votou em: 30/07/2025 às 20:20:46</div>
+                            <div class="voto-display voto-sim"><i class="fa-regular fa-circle-check"></i> Sim</div>
+                        </div>
+                        <div class="votante-card">
+                            <div class="votante-header">
+                                <div class="votante-info">
+                                    <img src="https://i.pravatar.cc/50?u=samim" alt="Avatar" class="votante-avatar">
+                                    <span class="votante-name">SAMIM</span>
+                                </div>
+                            </div>
+                            <div class="votante-timestamp">Votou em: 30/07/2025 às 20:20:43</div>
+                            <div class="voto-display voto-nao"><i class="fa-regular fa-circle-xmark"></i> Não</div>
+                        </div>
+                        <div class="votante-card">
+                            <div class="votante-header">
+                                <div class="votante-info">
+                                    <img src="https://i.pravatar.cc/50?u=joao" alt="Avatar" class="votante-avatar">
+                                    <span class="votante-name">JOÃO LOURENDE</span>
+                                </div>
+                            </div>
+                            <div class="votante-timestamp">Votou em: 30/07/2025 às 20:20:43</div>
+                            <div class="voto-display voto-sim"><i class="fa-regular fa-circle-check"></i> Sim</div>
+                        </div>
+                        <div class="votante-card">
+                            <div class="votante-header">
+                                <div class="votante-info">
+                                    <img src="https://i.pravatar.cc/50?u=assis" alt="Avatar" class="votante-avatar">
+                                    <span class="votante-name">DE ASSIS DANTAS</span>
+                                </div>
+                            </div>
+                            <div class="votante-timestamp">Votou em: 30/07/2025 às 20:20:52</div>
+                            <div class="voto-display voto-sim"><i class="fa-regular fa-circle-check"></i> Sim</div>
+                        </div>
+                        <div class="votante-card">
+                            <div class="votante-header">
+                                <div class="votante-info">
+                                    <img src="https://i.pravatar.cc/50?u=toinho" alt="Avatar" class="votante-avatar">
+                                    <span class="votante-name">TOINHO DE QUINCA</span>
+                                </div>
+                            </div>
+                            <div class="votante-timestamp">Votou em: 30/07/2025 às 20:21:08</div>
+                            <div class="voto-display voto-sim"><i class="fa-regular fa-circle-check"></i> Sim</div>
+                        </div>
+                        <div class="votante-card">
+                            <div class="votante-header">
+                                <div class="votante-info">
+                                    <img src="https://i.pravatar.cc/50?u=valdivia" alt="Avatar" class="votante-avatar">
+                                    <span class="votante-name">VALDIVIA MOURA</span>
+                                </div>
+                            </div>
+                            <div class="votante-timestamp">Votou em: 30/07/2025 às 20:21:08</div>
+                            <div class="voto-display voto-nao"><i class="fa-regular fa-circle-xmark"></i> Não</div>
+                        </div>
+                        <div class="votante-card">
+                            <div class="votante-header">
+                                <div class="votante-info">
+                                    <img src="https://i.pravatar.cc/50?u=marcielene" alt="Avatar" class="votante-avatar">
+                                    <span class="votante-name">MARCILENE BARROS</span>
+                                </div>
+                            </div>
+                            <div class="votante-timestamp">Votou em: 30/07/2025 às 20:21:08</div>
+                            <div class="voto-display voto-abstencao"><i class="fa-solid fa-hand"></i> Abstenção</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/global.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initLayout({
+            title: 'Painel de Votação',
+            icon: 'fa-check-to-slot',
+            navActive: 'nav-dashboard' // Ou o ID que fizer mais sentido
+            });
+            // Gráfico de Votação
+            const ctx = document.getElementById('votacaoChart').getContext('2d');
+            const votacaoChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sim', 'Não', 'Abstenção'],
+                    datasets: [{
+                        data: [5, 1, 1], // Exemplo de dados: 5 votos Sim, 1 Não, 1 Abstenção
+                        backgroundColor: [
+                            '#2ea043', // Verde para Sim
+                            '#da3633', // Vermelho para Não
+                            '#f08833'  // Laranja para Abstenção
+                        ],
+                        borderColor: [
+                            '#0d1117',
+                            '#0d1117',
+                            '#0d1117'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'var(--primary-text)' // Cor do texto da legenda
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>

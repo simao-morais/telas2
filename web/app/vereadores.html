@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vereadores - Legisla Net</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="../css/forms.css">
+
+    <style>
+        /* ESTILOS ESPECÍFICOS E ÚNICOS DA PÁGINA DE VEREADORES */
+    
+        .vereadores-section { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
+        .vereadores-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .vereadores-header h2 { font-size: 1.25rem; }
+        .table-container { flex-grow: 1; overflow-x: auto; }
+        .vereadores-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        .vereadores-table th, .vereadores-table td { padding: 12px 16px; text-align: left; white-space: nowrap; vertical-align: middle; }
+        .vereadores-table tbody tr { border-bottom: 1px solid var(--border-color); transition: background-color 0.2s; }
+        .vereadores-table tbody tr:hover { background-color: var(--hover-bg); }
+        .vereadores-table th { color: var(--secondary-text); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+        .vereador-info { display: flex; align-items: center; gap: 12px; }
+        .vereador-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .vereador-name .tag { display: block; font-size: 0.7rem; font-weight: 500; color: var(--accent-orange); margin-top: 2px; }
+        .partido-info { display: flex; align-items: center; gap: 8px; }
+        .partido-logo { width: 20px; height: 20px; object-fit: contain; }
+        .cards-container { display: none; }
+
+
+        @media (max-width: 992px) {
+            .table-container { display: none; }
+            .cards-container { display: grid; grid-template-columns: 1fr; gap: 12px; flex-grow: 1; }
+            .vereador-card { background-color: var(--hover-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; }
+            .vereador-card .vereador-info { flex-grow: 1; }
+            .vereador-card .actions-cell { flex-shrink: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-content" id="mainContent">
+            
+            <div id="header-placeholder"></div>
+
+            <section class="vereadores-section fade-in">
+                <div class="vereadores-header">
+                    <h2>Vereadores</h2>
+                    <button class="btn btn-primary" id="novoVereadorBtn">Novo Vereador</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="vereadores-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nome</th>
+                                <th>Plenário</th>
+                                <th>Partido</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><img src="https://i.pravatar.cc/150?img=1" alt="Avatar" class="vereador-avatar"></td>
+                                <td>MARCILENE BARROS</td>
+                                <td>Dom Expedito Lopes</td>
+                                <td class="partido-info"><img src="https://via.placeholder.com/20/0000FF/FFFFFF?text=PP" alt="Logo PP" class="partido-logo"> PP</td>
+                                <td class="actions-cell">
+                                    <a href="editar_vereador.html" class="btn btn-action btn-edit">Editar</a>
+                                    <button class="btn btn-action btn-remove" onclick="openModal('confirmarExclusaoVereadorModal')">Remover</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><img src="https://i.pravatar.cc/150?img=2" alt="Avatar" class="vereador-avatar"></td>
+                                <td>SAMIM</td>
+                                <td>Dom Expedito Lopes</td>
+                                <td class="partido-info"><img src="https://via.placeholder.com/20/FFD700/000000?text=MDB" alt="Logo MDB" class="partido-logo"> MDB</td>
+                                <td class="actions-cell">
+                                    <a href="editar_vereador.html" class="btn btn-action btn-edit">Editar</a>
+                                    <button class="btn btn-action btn-remove" onclick="openModal('confirmarExclusaoVereadorModal')">Remover</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><img src="https://i.pravatar.cc/150?img=3" alt="Avatar" class="vereador-avatar"></td>
+                                <td>JOÃO LOURENDE</td>
+                                <td>Dom Expedito Lopes</td>
+                                <td class="partido-info"><img src="https://via.placeholder.com/20/0000FF/FFFFFF?text=PP" alt="Logo PP" class="partido-logo"> PP</td>
+                                <td class="actions-cell">
+                                    <a href="editar_vereador.html" class="btn btn-action btn-edit">Editar</a>
+                                    <button class="btn btn-action btn-remove" onclick="openModal('confirmarExclusaoVereadorModal')">Remover</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><img src="https://i.pravatar.cc/150?img=4" alt="Avatar" class="vereador-avatar"></td>
+                                <td>EVERALDO GONÇALVES</td>
+                                <td>Dom Expedito Lopes</td>
+                                <td class="partido-info"><img src="https://via.placeholder.com/20/0000FF/FFFFFF?text=PP" alt="Logo PP" class="partido-logo"> PP</td>
+                                <td class="actions-cell">
+                                    <a href="editar_vereador.html" class="btn btn-action btn-edit">Editar</a>
+                                    <button class="btn btn-action btn-remove" onclick="openModal('confirmarExclusaoVereadorModal')">Remover</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><img src="https://i.pravatar.cc/150?img=5" alt="Avatar" class="vereador-avatar"></td>
+                                <td>VALDIVIA MOURA</td>
+                                <td>Dom Expedito Lopes</td>
+                                <td class="partido-info"><img src="https://via.placeholder.com/20/008000/FFFFFF?text=R" alt="Logo Republicanos" class="partido-logo"> Republicanos</td>
+                                <td class="actions-cell">
+                                    <a href="editar_vereador.html" class="btn btn-action btn-edit">Editar</a>
+                                    <button class="btn btn-action btn-remove" onclick="openModal('confirmarExclusaoVereadorModal')">Remover</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><img src="https://i.pravatar.cc/150?img=6" alt="Avatar" class="vereador-avatar"></td>
+                                <td>
+                                    <div class="vereador-name">
+                                        DE ASSIS DANTAS
+                                        <span class="tag">Presidente</span>
+                                    </div>
+                                </td>
+                                <td>Dom Expedito Lopes</td>
+                                <td class="partido-info"><img src="https://via.placeholder.com/20/FF0000/FFFFFF?text=PT" alt="Logo PT" class="partido-logo"> PT</td>
+                                <td class="actions-cell">
+                                    <a href="editar_vereador.html" class="btn btn-action btn-edit">Editar</a>
+                                    <button class="btn btn-action btn-remove" onclick="openModal('confirmarExclusaoVereadorModal')">Remover</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="cards-container">
+                    <div class="vereador-card">
+                        <img src="https://i.pravatar.cc/150?img=1" alt="Avatar" class="vereador-avatar">
+                        <div class="vereador-info">
+                            <div class="vereador-name">MARCILENE BARROS</div>
+                            <div class="partido-info"><img src="https://via.placeholder.com/20/0000FF/FFFFFF?text=PP" alt="Logo PP" class="partido-logo"> PP</div>
+                        </div>
+                        <div class="actions-cell">
+                            <a href="editar_vereador.html" class="btn btn-action btn-edit">Editar</a>
+                            <button class="btn btn-action btn-remove" onclick="openModal('confirmarExclusaoVereadorModal')">Remover</button>
+                        </div>
+                    </div>
+                     <div class="vereador-card">
+                        <img src="https://i.pravatar.cc/150?img=6" alt="Avatar" class="vereador-avatar">
+                        <div class="vereador-info">
+                            <div class="vereador-name">
+                                DE ASSIS DANTAS
+                                <span class="tag">Presidente</span>
+                            </div>
+                            <div class="partido-info"><img src="https://via.placeholder.com/20/FF0000/FFFFFF?text=PT" alt="Logo PT" class="partido-logo"> PT</div>
+                        </div>
+                        <div class="actions-cell">
+                            <a href="editar_vereador.html" class="btn btn-action btn-edit">Editar</a>
+                            <button class="btn btn-action btn-remove" onclick="openModal('confirmarExclusaoVereadorModal')">Remover</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="novoVereadorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Novo vereador</h3>
+                <button class="modal-close" onclick="closeModal('novoVereadorModal')"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="novoVereadorForm">
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <span class="form-label">Presidente</span>
+                            <div class="toggle-switch" id="presidenteToggle" onclick="toggleSwitch('presidenteToggle')"><div class="toggle-slider"></div></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="nomeVereador">Nome</label>
+                        <input type="text" id="nomeVereador" class="form-input" placeholder="Digite o nome do vereador">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="partidoVereador">Partido</label>
+                        <select id="partidoVereador" class="form-select">
+                            <option value="">Selecione o partido</option>
+                            <option value="PP">PP</option>
+                            <option value="MDB">MDB</option>
+                            <option value="PT">PT</option>
+                            <option value="Republicanos">Republicanos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="fotoVereador">Foto</label>
+                        <div class="file-input-container">
+                            <input type="file" id="fotoVereador" class="file-input" accept="image/*">
+                            <label for="fotoVereador" class="file-input-label">
+                                <i class="fa-solid fa-upload"></i>
+                                <span class="file-input-text">Escolher arquivo</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('novoVereadorModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Cadastrar vereador</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="editarVereadorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar vereador</h3>
+                <button class="modal-close" onclick="closeModal('editarVereadorModal')"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="editarVereadorForm">
+                    <div class="form-group">
+                        <div class="toggle-container">
+                            <span class="form-label">Presidente</span>
+                            <div class="toggle-switch" id="editPresidenteToggle" onclick="toggleSwitch('editPresidenteToggle')"><div class="toggle-slider"></div></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="editNomeVereador">Nome</label>
+                        <input type="text" id="editNomeVereador" class="form-input" placeholder="Digite o nome do vereador">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="editPartidoVereador">Partido</label>
+                        <select id="editPartidoVereador" class="form-select">
+                            <option value="">Selecione o partido</option>
+                            <option value="PP">PP</option>
+                            <option value="MDB">MDB</option>
+                            <option value="PT">PT</option>
+                            <option value="Republicanos">Republicanos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="editFotoVereador">Foto</label>
+                        <div class="file-input-container">
+                            <input type="file" id="editFotoVereador" class="file-input" accept="image/*">
+                            <label for="editFotoVereador" class="file-input-label">
+                                <i class="fa-solid fa-upload"></i>
+                                <span class="file-input-text">Escolher arquivo</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editarVereadorModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="confirmarExclusaoVereadorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+                <button class="modal-close" onclick="closeModal('confirmarExclusaoVereadorModal')"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="modal-body confirm-text">
+                <p>Você tem certeza que deseja remover este vereador da lista?</p>
+                <p>Esta ação não poderá ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('confirmarExclusaoVereadorModal')">Cancelar</button>
+                <button type="button" class="btn" style="background-color: var(--accent-red); color: white;">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/global.js"></script>
+    <script src="../js/modals.js"></script>
+    <script src="../js/forms.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Função específica da página de vereadores
+            initLayout({
+            title: 'Vereadores',
+            icon: 'fa-users',
+            navActive: 'nav-vereadores'
+        });
+            function openEditModal(nome, partido, isPresidente = false) {
+                const nomeInput = document.getElementById('editNomeVereador');
+                const partidoSelect = document.getElementById('editPartidoVereador');
+                const toggle = document.getElementById('editPresidenteToggle');
+
+                if(nomeInput) nomeInput.value = nome;
+                if(partidoSelect) partidoSelect.value = partido;
+                
+                if (toggle) {
+                    if (isPresidente) {
+                        toggle.classList.add('active');
+                    } else {
+                        toggle.classList.remove('active');
+                    }
+                }
+                
+                openModal('editarVereadorModal');
+            }
+
+            // Gatilho para o modal "Novo Vereador"
+            const novoVereadorBtn = document.getElementById('novoVereadorBtn');
+            if (novoVereadorBtn) {
+                novoVereadorBtn.addEventListener('click', () => {
+                    openModal('novoVereadorModal');
+                });
+            }
+
+            // Lógica de submit (para demonstração)
+            const novoVereadorForm = document.getElementById('novoVereadorForm');
+            if(novoVereadorForm) {
+                novoVereadorForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Vereador cadastrado com sucesso!');
+                    closeModal('novoVereadorModal');
+                });
+            }
+
+            const editarVereadorForm = document.getElementById('editarVereadorForm');
+            if(editarVereadorForm) {
+                editarVereadorForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Vereador editado com sucesso!');
+                    closeModal('editarVereadorModal');
+                });
+            }
+
+        });
+    </script>
+</body>
+</html>

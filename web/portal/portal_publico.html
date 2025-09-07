@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acompanhe a Câmara Municipal de Picos - Portal da Transparência</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../css/portal.css">
+    <link rel="stylesheet" href="../css/animations.css">
+
+    <style>
+        /* ESTILOS ESPECÍFICOS DO PORTAL PÚBLICO */
+        
+        /* --- Live Session Section --- */
+        #live-session {
+            background: linear-gradient(135deg, #1a1f2e 0%, var(--background-light) 100%);
+        }
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-red);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .live-grid-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+            align-items: flex-start;
+        }
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #000;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            color: var(--secondary-text);
+        }
+        .video-placeholder i {
+            font-size: 4rem;
+            color: var(--border-color);
+        }
+        .session-info {
+            background-color: var(--background-light);
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .session-meta {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .meta-item h4 {
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }
+        .voting-display {
+            background-color: var(--background-dark);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .vote-counts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .vote-count {
+            text-align: center;
+            padding: 16px 8px;
+            border-radius: 10px;
+        }
+        .vote-count.favor {
+            background-color: rgba(46, 160, 67, 0.2);
+            border: 1px solid rgba(46, 160, 67, 0.5);
+        }
+        .vote-count.against {
+            background-color: rgba(248, 81, 73, 0.2);
+            border: 1px solid rgba(248, 81, 73, 0.5);
+        }
+        .vote-count.abstention {
+            background-color: rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+        }
+        .vote-count .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+            line-height: 1;
+        }
+        .vote-count span:not(.number) {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--secondary-text);
+        }
+        .vote-count.favor span:not(.number) { color: var(--accent-green); }
+        .vote-count.against span:not(.number) { color: var(--accent-red); }
+        .vote-count.abstention span:not(.number) { color: var(--accent-gold); }
+
+        /* --- Agenda Section --- */
+        .agenda-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .agenda-card {
+            background-color: var(--background-light);
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .agenda-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+        .agenda-date {
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .agenda-title {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+        .agenda-items {
+            list-style: none;
+        }
+        .agenda-items li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--secondary-text);
+        }
+        .agenda-items li:last-child {
+            border-bottom: none;
+        }
+
+        /* --- Votes Section --- */
+        .votes-grid {
+            display: grid;
+            gap: 16px;
+        }
+        .vote-card {
+            background-color: var(--background-light);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .vote-info h4 {
+            margin-bottom: 4px;
+        }
+        .vote-info .date {
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+        .vote-result {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .result-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .result-badge.approved {
+            background-color: rgba(46, 160, 67, 0.2);
+            color: var(--accent-green);
+        }
+        .result-badge.rejected {
+            background-color: rgba(248, 81, 73, 0.2);
+            color: var(--accent-red);
+        }
+
+        /* --- Members Carousel --- */
+        .carousel-wrapper {
+            width: 100%;
+            overflow: hidden;
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+        .carousel-wrapper:hover .members-carousel {
+            animation-play-state: paused;
+        }
+        .members-carousel {
+            display: flex;
+            width: calc(304px * 6);
+            animation: scroll-members 30s linear infinite;
+        }
+        @keyframes scroll-members {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(-304px * 3)); }
+        }
+        .member-card {
+            width: 280px;
+            flex-shrink: 0;
+            margin: 0 12px;
+            background-color: var(--background-light);
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .member-card:hover {
+            transform: translateY(-2px);
+        }
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            border: 3px solid var(--accent-blue);
+        }
+        .member-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .member-party {
+            color: var(--accent-gold);
+            margin-bottom: 12px;
+        }
+        .member-stats {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        .stat-item .number {
+            font-weight: 700;
+            color: var(--accent-blue);
+            display: block;
+        }
+        .stat-item .label {
+            font-size: 0.8rem;
+            color: var(--secondary-text);
+        }
+
+        /* --- Transparency Section --- */
+        #transparency {
+            background-color: var(--background-light);
+        }
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .doc-card {
+            background-color: var(--background-dark);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.2s;
+        }
+        .doc-card:hover {
+            transform: translateY(-2px);
+        }
+        .doc-icon {
+            font-size: 2rem;
+            color: var(--accent-blue);
+        }
+        .doc-info h4 {
+            margin-bottom: 4px;
+        }
+        .doc-info .date {
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 992px) {
+            .live-grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .section-header h2 { font-size: 2rem; }
+            .vote-counts { grid-template-columns: 1fr; gap: 12px; }
+            .nav-menu { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="home.html" class="nav-logo">
+                <svg viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="var(--accent-blue)" /><stop offset="100%" stop-color="var(--accent-green)" />
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#logoGradient)" d="M 8 5 V 35 H 14 V 5 Z M 19 5 V 35 H 25 V 5 Z M 30 5 V 35 H 36 V 5 Z M 5 35 H 39 V 40 H 5 Z" />
+                </svg>
+                <span>Legisla Net</span>
+            </a>
+            <div class="nav-menu-wrapper">
+                <ul class="nav-menu">
+                    <li><a href="#agenda">Agenda</a></li>
+                    <li><a href="#votes">Votações</a></li>
+                    <li><a href="#members">Vereadores</a></li>
+                </ul>
+                <a href="#" class="btn btn-primary btn-cta">Seja nosso parceiro</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero hero-live-border">
+        <div class="container hero-content">
+            <h1>Sua Câmara Municipal, Aberta para Você</h1>
+            <p>Acompanhe sessões ao vivo, consulte votações e projetos. Participe da vida legislativa da sua cidade.</p>
+        </div>
+    </header>
+
+    <main>
+        <section id="live-session" class="section fade-in">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <div class="live-indicator">
+                        <div class="live-dot"></div>
+                        <h2 class="status-live">SESSÃO AO VIVO</h2>
+                    </div>
+                    <p>Acompanhe a sessão ordinária em tempo real</p>
+                </div>
+                
+                <div class="live-grid-container fade-in">
+                    <div class="video-placeholder">
+                        <i class="fas fa-play-circle"></i>
+                        <p>Transmissão Ao Vivo</p>
+                    </div>
+                    
+                    <div class="session-info">
+                        <div class="session-meta">
+                            <div class="meta-item"><h4>Data/Hora</h4><p>19 de Agosto, 2025 - 17:55</p></div>
+                            <div class="meta-item"><h4>Tipo de Sessão</h4><p>Sessão Ordinária</p></div>
+                             <div class="meta-item"><h4>Presentes</h4><p>14 de 15 vereadores</p></div>
+                        </div>
+
+                        <div class="voting-display">
+                            <h4 style="margin-bottom: 16px;">Votação Atual: Projeto de Lei 045/2025</h4>
+                            <p style="margin-bottom: 20px; color: var(--secondary-text); font-size: 0.9rem;">Institui o programa municipal de coleta seletiva</p>
+                            <div class="vote-counts">
+                                <div class="vote-count favor"><span class="number">10</span><span>A Favor</span></div>
+                                <div class="vote-count against"><span class="number">3</span><span>Contra</span></div>
+                                <div class="vote-count abstention"><span class="number">1</span><span>Abstenção</span></div>
+                            </div>
+                            <p style="text-align: center; color: var(--secondary-text); font-size: 0.9rem;">Votação em andamento... <span class="status-live">●</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="agenda" class="section fade-in">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Próximas Sessões</h2>
+                    <p>Agenda das próximas reuniões da câmara municipal</p>
+                </div>
+                
+                <div class="agenda-grid">
+                    <div class="agenda-card fade-in"><div class="agenda-date">22 de Agosto, 2025 - 14:30</div><h3 class="agenda-title">Sessão Extraordinária</h3><ul class="agenda-items"><li>Votação do orçamento municipal 2026</li><li>Análise do Projeto de Lei 046/2025</li></ul></div>
+                    <div class="agenda-card fade-in"><div class="agenda-date">26 de Agosto, 2025 - 14:30</div><h3 class="agenda-title">Sessão Ordinária</h3><ul class="agenda-items"><li>Prestação de contas - Secretaria de Obras</li><li>Projeto de Lei 047/2025 - Mobilidade urbana</li></ul></div>
+                    <div class="agenda-card fade-in"><div class="agenda-date">29 de Agosto, 2025 - 09:00</div><h3 class="agenda-title">Audiência Pública</h3><ul class="agenda-items"><li>Discussão do novo plano diretor</li><li>Participação da comunidade</li></ul></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="votes" class="section fade-in">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Votações Recentes</h2>
+                    <p>Resultado das últimas votações realizadas</p>
+                </div>
+                
+                <div class="votes-grid fade-in">
+                    <div class="vote-card"><div class="vote-info"><h4>Projeto de Lei 044/2025</h4><p>Criação do parque municipal Cidade Verde</p></div><div class="vote-result"><div class="result-badge approved">APROVADO</div></div></div>
+                    <div class="vote-card"><div class="vote-info"><h4>Projeto de Lei 043/2025</h4><p>Regulamentação do comércio ambulante</p></div><div class="vote-result"><div class="result-badge approved">APROVADO</div></div></div>
+                    <div class="vote-card"><div class="vote-info"><h4>Projeto de Lei 042/2025</h4><p>Aumento da taxa de iluminação pública</p></div><div class="vote-result"><div class="result-badge rejected">REJEITADO</div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="members" class="section fade-in">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Nossos Vereadores</h2>
+                    <p>Conheça os representantes eleitos da nossa cidade</p>
+                </div>
+            </div>
+            <div class="carousel-wrapper fade-in">
+                <div class="members-carousel">
+                    <div class="member-card"><img src="https://i.pravatar.cc/150?u=joao" alt="João da Silva" class="member-avatar"><h3 class="member-name">João da Silva</h3><p class="member-party">PDT - Presidente da Câmara</p><div class="member-stats"><div class="stat-item"><span class="number">89%</span><span class="label">Presença</span></div><div class="stat-item"><span class="number">12</span><span class="label">Projetos</span></div><div class="stat-item"><span class="number">156</span><span class="label">Votações</span></div></div></div>
+                    <div class="member-card"><img src="https://i.pravatar.cc/150?u=maria" alt="Maria Santos" class="member-avatar"><h3 class="member-name">Maria Santos</h3><p class="member-party">PSDB - Vice-Presidente</p><div class="member-stats"><div class="stat-item"><span class="number">92%</span><span class="label">Presença</span></div><div class="stat-item"><span class="number">8</span><span class="label">Projetos</span></div><div class="stat-item"><span class="number">148</span><span class="label">Votações</span></div></div></div>
+                    <div class="member-card"><img src="https://i.pravatar.cc/150?u=carlos" alt="Carlos Oliveira" class="member-avatar"><h3 class="member-name">Carlos Oliveira</h3><p class="member-party">PT - 1º Secretário</p><div class="member-stats"><div class="stat-item"><span class="number">87%</span><span class="label">Presença</span></div><div class="stat-item"><span class="number">15</span><span class="label">Projetos</span></div><div class="stat-item"><span class="number">142</span><span class="label">Votações</span></div></div></div>
+                    <div class="member-card"><img src="https://i.pravatar.cc/150?u=joao" alt="João da Silva" class="member-avatar"><h3 class="member-name">João da Silva</h3><p class="member-party">PDT - Presidente da Câmara</p><div class="member-stats"><div class="stat-item"><span class="number">89%</span><span class="label">Presença</span></div><div class="stat-item"><span class="number">12</span><span class="label">Projetos</span></div><div class="stat-item"><span class="number">156</span><span class="label">Votações</span></div></div></div>
+                    <div class="member-card"><img src="https://i.pravatar.cc/150?u=maria" alt="Maria Santos" class="member-avatar"><h3 class="member-name">Maria Santos</h3><p class="member-party">PSDB - Vice-Presidente</p><div class="member-stats"><div class="stat-item"><span class="number">92%</span><span class="label">Presença</span></div><div class="stat-item"><span class="number">8</span><span class="label">Projetos</span></div><div class="stat-item"><span class="number">148</span><span class="label">Votações</span></div></div></div>
+                    <div class="member-card"><img src="https://i.pravatar.cc/150?u=carlos" alt="Carlos Oliveira" class="member-avatar"><h3 class="member-name">Carlos Oliveira</h3><p class="member-party">PT - 1º Secretário</p><div class="member-stats"><div class="stat-item"><span class="number">87%</span><span class="label">Presença</span></div><div class="stat-item"><span class="number">15</span><span class="label">Projetos</span></div><div class="stat-item"><span class="number">142</span><span class="label">Votações</span></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="transparency" class="section fade-in">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <h2>Portal da Transparência</h2>
+                    <p>Acesse documentos, atas e relatórios públicos</p>
+                </div>
+                
+                <div class="docs-grid fade-in">
+                    <div class="doc-card"><i class="fas fa-file-alt doc-icon"></i><div class="doc-info"><h4>Ata da Sessão Ordinária</h4><p class="date">15 de Agosto, 2025</p></div></div>
+                    <div class="doc-card"><i class="fas fa-chart-bar doc-icon"></i><div class="doc-info"><h4>Relatório Financeiro</h4><p class="date">Julho 2025</p></div></div>
+                    <div class="doc-card"><i class="fas fa-gavel doc-icon"></i><div class="doc-info"><h4>Projetos em Tramitação</h4><p class="date">Atualizado hoje</p></div></div>
+                    <div class="doc-card"><i class="fas fa-users doc-icon"></i><div class="doc-info"><h4>Registro de Presenças</h4><p class="date">Agosto 2025</p></div></div>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="footer">
+            <div class="container footer-container">
+                <p>&copy; 2025 Câmara Municipal. Portal desenvolvido com Legisla Net.</p>
+                <div class="footer-social">
+                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </footer>
+
+    <script src="../js/global.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar animações unificadas
+            initUnifiedAnimations();
+            
+            // Função específica do portal público
+            function updateVotingData() {
+                const voteNumbers = document.querySelectorAll('.vote-count .number');
+                if (voteNumbers.length >= 3) {
+                    const favor = Math.floor(Math.random() * 3) + 10;
+                    const against = Math.floor(Math.random() * 2) + 2;
+                    const abstention = Math.floor(Math.random() * 2);
+                    
+                    voteNumbers[0].textContent = favor;
+                    voteNumbers[1].textContent = against;
+                    voteNumbers[2].textContent = abstention;
+                }
+            }
+            setInterval(updateVotingData, 5000);
+        });
+    </script>
+</body>
+</html>
