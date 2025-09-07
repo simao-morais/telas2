@@ -8,6 +8,12 @@
 // FUNÇÃO PRINCIPAL DE INICIALIZAÇÃO DO LAYOUT
 // ===================================================================================
 
+function getBasePath() {
+  const path = window.location.pathname;
+  const repoName = path.split('/')[1];
+  return '/' + repoName;
+}
+
 /**
  * Inicializa o layout da página, carregando os componentes corretos (sidebar, header, etc.)
  * e configurando os listeners de eventos necessários.
@@ -18,26 +24,24 @@
  */
 async function initLayout(pageConfig) {
   const path = window.location.pathname;
+  const basePath = getBasePath();
 
-  // Determina o contexto (admin, app ou portal) com base no caminho do URL
-  // CORREÇÃO: Caminhos alterados para absolutos
   if (path.includes("/admin/")) {
     await loadComponent(
-      "/components/admin_sidebar.html",
+      `${basePath}/components/admin_sidebar.html`,
       "sidebar-placeholder"
     );
-    await loadComponent("/components/admin_header.html", "header-placeholder");
+    await loadComponent(`${basePath}/components/admin_header.html`, "header-placeholder");
   } else if (path.includes("/app/")) {
-    await loadComponent("/components/app_sidebar.html", "sidebar-placeholder");
-    await loadComponent("/components/app_header.html", "header-placeholder");
+    await loadComponent(`${basePath}/components/app_sidebar.html`, "sidebar-placeholder");
+    await loadComponent(`${basePath}/components/app_header.html`, "header-placeholder");
   } else if (path.includes("/portal/")) {
-    await loadComponent("/components/portal_navbar.html", "navbar-placeholder");
-    await loadComponent("/components/portal_footer.html", "footer-placeholder");
+    await loadComponent(`${basePath}/components/portal_navbar.html`, "navbar-placeholder");
+    await loadComponent(`${basePath}/components/portal_footer.html`, "footer-placeholder");
   }
 
-  // Após carregar os componentes, configura os elementos dinâmicos
   setupDynamicContent(pageConfig);
-  autoFixFormSectionLayout(); // Corrige o layout se necessário
+  autoFixFormSectionLayout();
   setupEventListeners();
 }
 
@@ -52,7 +56,7 @@ async function initLayout(pageConfig) {
  */
 async function loadComponent(componentPath, targetElementId) {
   const targetElement = document.getElementById(targetElementId);
-  if (!targetElement) return; // Não faz nada se o placeholder não existir
+  if (!targetElement) return;
 
   try {
     const response = await fetch(componentPath);
@@ -73,7 +77,6 @@ async function loadComponent(componentPath, targetElementId) {
 function setupDynamicContent(pageConfig) {
   if (!pageConfig) return;
 
-  // Define o título e o ícone do cabeçalho, se existirem
   const headerTitle = document.getElementById("header-title");
   const headerIcon = document.getElementById("header-icon");
   if (headerTitle && pageConfig.title) {
@@ -83,7 +86,6 @@ function setupDynamicContent(pageConfig) {
     headerIcon.className = `fa-solid ${pageConfig.icon}`;
   }
 
-  // Define o item de navegação ativo na sidebar
   if (pageConfig.navActive) {
     const activeNavItem = document.getElementById(pageConfig.navActive);
     if (activeNavItem) {
@@ -97,7 +99,6 @@ function setupDynamicContent(pageConfig) {
  * Isso garante que os botões e links dentro dos componentes funcionem corretamente.
  */
 function setupEventListeners() {
-  // Listener para o dropdown do perfil de usuário
   const profileBtn = document.getElementById("profileBtn");
   const profileDropdown = document.getElementById("profileDropdown");
   if (profileBtn && profileDropdown) {
@@ -108,7 +109,6 @@ function setupEventListeners() {
     });
   }
 
-  // Listener para fechar o dropdown ao clicar fora
   window.addEventListener("click", () => {
     if (profileDropdown && profileDropdown.classList.contains("active")) {
       profileDropdown.classList.remove("active");
@@ -116,13 +116,11 @@ function setupEventListeners() {
     }
   });
 
-  // Listeners para os links de navegação da sidebar
   const navLinks = document.querySelectorAll("a[data-page]");
   navLinks.forEach((link) => {
-    // Remove listeners antigos para evitar duplicação, se houver
     link.replaceWith(link.cloneNode(true));
   });
-  // Adiciona os novos listeners
+
   document.querySelectorAll("a[data-page]").forEach((link) => {
     link.addEventListener("click", function (e) {
       e.preventDefault();
@@ -131,7 +129,6 @@ function setupEventListeners() {
     });
   });
 
-  // Animações de fade-in
   initializeFadeInObserver();
 }
 
@@ -163,31 +160,27 @@ function navigateToPage(pageName) {
 }
 
 function getPageUrl(pageName) {
-  // CORREÇÃO: Caminhos alterados para absolutos
+  const basePath = getBasePath();
   const pageMap = {
-    // Admin pages
-    dashboard_admin: "/admin/dashboard_admin.html",
-    "nova-camara": "/admin/nova_camara.html",
-    "novo-partido": "/admin/novo_partido.html",
-    partidos: "/admin/partidos.html", // ADICIONADO
-    configuracoes: "/admin/configuracoes.html", // ADICIONADO
-    relatorios: "/admin/relatorios.html", // ADICIONADO
-    // App pages
-    dashboard: "/app/dashboard.html",
-    cadastro: "/app/cadastro_de_pautas.html",
-    nova_pauta: "/app/nova_pauta.html",
-    editar_pauta: "/app/editar_pauta.html",
-    vereadores: "/app/vereadores.html",
-    editar_vereador: "/app/editar_vereador.html",
-    ordem_do_dia: "/app/ordem_do_dia.html",
-    relatorio: "/app/relatorio.html",
-    perfil: "/app/perfil_camara.html",
-    sessoes: "/app/sessoes.html",
+    dashboard_admin: `${basePath}/admin/dashboard_admin.html`,
+    "nova-camara": `${basePath}/admin/nova_camara.html`,
+    "novo-partido": `${basePath}/admin/novo_partido.html`,
+    partidos: `${basePath}/admin/partidos.html`,
+    configuracoes: `${basePath}/admin/configuracoes.html`,
+    relatorios: `${basePath}/admin/relatorios.html`,
+    dashboard: `${basePath}/app/dashboard.html`,
+    cadastro: `${basePath}/app/cadastro_de_pautas.html`,
+    nova_pauta: `${basePath}/app/nova_pauta.html`,
+    editar_pauta: `${basePath}/app/editar_pauta.html`,
+    vereadores: `${basePath}/app/vereadores.html`,
+    editar_vereador: `${basePath}/app/editar_vereador.html`,
+    ordem_do_dia: `${basePath}/app/ordem_do_dia.html`,
+    relatorio: `${basePath}/app/relatorio.html`,
+    perfil: `${basePath}/app/perfil_camara.html`,
+    sessoes: `${basePath}/app/sessoes.html`,
   };
 
-  // Adapta a chave de busca para o contexto admin
-  const key =
-    isAdminContext() && pageName === "dashboard" ? "dashboard_admin" : pageName;
+  const key = isAdminContext() && pageName === "dashboard" ? "dashboard_admin" : pageName;
 
   return pageMap[key];
 }
@@ -215,12 +208,7 @@ function initializeFadeInObserver() {
   elementsToFadeIn.forEach((el) => observer.observe(el));
 }
 
-/**
- * Sistema Unificado de Animações Fade-In
- * Suporta: .fade-in, .animate-on-load, .fade-in-section
- */
 function initUnifiedAnimations() {
-  // 1. Animações imediatas (hero sections)
   const immediateElements = document.querySelectorAll(".animate-on-load");
   immediateElements.forEach((el, index) => {
     setTimeout(() => {
@@ -228,43 +216,34 @@ function initUnifiedAnimations() {
     }, (index + 1) * 200);
   });
 
-  // 2. Animações durante scroll (Intersection Observer)
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add("visible");
-          observer.unobserve(entry.target); // Para de observar após animar
+          observer.unobserve(entry.target);
         }
       });
     },
     {
       threshold: 0.1,
-      rootMargin: "0px 0px -50px 0px", // Ativa um pouco antes
+      rootMargin: "0px 0px -50px 0px",
     }
   );
 
-  // Observar todos os tipos de elementos
   const scrollElements = document.querySelectorAll(
     ".fade-in, .fade-in-section"
   );
   scrollElements.forEach((el) => observer.observe(el));
 }
 
-// Manter compatibilidade com código existente
 function initFadeInAnimations() {
   initUnifiedAnimations();
 }
 
-// Adiciona um listener global que espera o DOM carregar, mas não inicia o layout.
-// O layout será iniciado por uma chamada explícita em cada página HTML.
 document.addEventListener("DOMContentLoaded", () => {
-  // Funções que não dependem de componentes podem ser chamadas aqui,
-  // mas a maioria agora está em setupEventListeners().
   if (localStorage.getItem("showLoginSuccessToast") === "true") {
-    // Se a flag existir, mostra o toast
     showToast("Login bem-sucedido!", "success");
-    // E remove a flag para não mostrar novamente ao recarregar a página
     localStorage.removeItem("showLoginSuccessToast");
   }
 });
@@ -273,10 +252,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // INICIALIZADOR DE COMPONENTES DE UI (ex: Dropdowns de Tabela)
 // ===================================================================================
 
-/**
- * Inicializa a interatividade para os dropdowns de status encontrados na página.
- * Procura por elementos com a classe '.status-dropdown' e adiciona os listeners.
- */
 function initStatusDropdowns() {
   const statusDropdowns = document.querySelectorAll(".status-dropdown");
   if (statusDropdowns.length === 0) return;
@@ -312,7 +287,7 @@ function initStatusDropdowns() {
           ".status-badge-wrapper .status-badge"
         );
         if (mainBadge) {
-          mainBadge.className = "status-badge"; // Limpa classes antigas
+          mainBadge.className = "status-badge";
           mainBadge.classList.add(newValue);
           mainBadge.textContent = newText.toUpperCase();
         }
@@ -333,7 +308,6 @@ function initStatusDropdowns() {
  */
 function protectPage() {
   console.log("[AUTH_GUARD] Iniciando verificação de autenticação...");
-  // Usamos a chave padronizada 'authToken' para verificar a existência do token.
   const token = localStorage.getItem("authToken");
 
   if (!token) {
@@ -343,23 +317,13 @@ function protectPage() {
     console.log(
       "[AUTH_GUARD] Redirecionando para a página de login: /app/login.html"
     );
-
-    // Opcional: Limpar o localStorage para garantir um estado limpo ao ser redirecionado para o login.
-    // Isso é útil se houver dados parciais ou corrompidos.
     localStorage.clear();
-
-    // Redireciona o usuário para a página de login
-    window.location.href = "/app/login.html";
-
-    // É importante interromper a execução do script da página atual
-    // para evitar que qualquer código que dependa da autenticação seja executado.
+    window.location.href = `${getBasePath()}/app/login.html`;
     throw new Error("Não autenticado, redirecionando para login.");
   } else {
     console.log(
       "[AUTH_GUARD] ✅ Token de autenticação encontrado. Acesso permitido."
     );
-    // Opcional: Você pode decodificar o token aqui para obter informações do usuário
-    // ou buscar userData do localStorage se já tiver sido salvo no login.
     try {
       const userData = localStorage.getItem("userData");
       if (userData) {
@@ -373,9 +337,8 @@ function protectPage() {
         "[AUTH_GUARD] Erro ao parsear userData do localStorage:",
         e
       );
-      // Se userData estiver corrompido, melhor limpar e redirecionar
       localStorage.clear();
-      window.location.href = "/app/login.html";
+      window.location.href = `${getBasePath()}/app/login.html`;
       throw new Error(
         "Dados de usuário corrompidos, redirecionando para login."
       );
@@ -387,13 +350,10 @@ function protectPage() {
  * Realiza o logout do usuário, invalidando o token no backend e limpando o frontend.
  */
 async function logout() {
-  // --- LOG DE DEPURAÇÃO ---
   console.log("[DEBUG-FRONTEND] A função logout() foi chamada.");
-
   const authToken = localStorage.getItem("authToken");
 
   if (authToken) {
-    // --- LOG DE DEPURAÇÃO ---
     console.log(
       "[DEBUG-FRONTEND] Token encontrado. Enviando requisição para /api/auth/logout..."
     );
@@ -416,33 +376,23 @@ async function logout() {
     }
   }
 
-  // Limpa os dados locais independentemente da resposta do servidor
   localStorage.removeItem("authToken");
   localStorage.removeItem("userData");
-
-  // Redireciona para a página de login
-  window.location.href = "/app/login.html";
+  window.location.href = `${getBasePath()}/app/login.html`;
 }
 
 function autoFixFormSectionLayout() {
-  // Procura por containers que precisam de wrappers
   const mainContent = document.querySelector(".main-content");
   if (!mainContent) return;
-
-  // Verifica se já existe .page-content-wrapper
   if (mainContent.querySelector(".page-content-wrapper")) return;
 
-  // Lista de seletores que precisam ser envolvidos pelos wrappers
   const containerSelectors = [
     ".form-section",
     ".pautas-section",
     ".dashboard-section",
     ".content-section",
-    ".ordem-dia-section",
-    ".oradores-section",
   ];
 
-  // Procura por qualquer um dos containers diretamente filhos de .main-content
   const containersToWrap = [];
   containerSelectors.forEach((selector) => {
     const elements = mainContent.querySelectorAll(`:scope > ${selector}`);
@@ -456,14 +406,12 @@ function autoFixFormSectionLayout() {
     containersToWrap.map((el) => el.className)
   );
 
-  // Cria os wrappers
   const pageContentWrapper = document.createElement("div");
   pageContentWrapper.className = "page-content-wrapper";
 
   const contentArea = document.createElement("div");
   contentArea.className = "content-area";
 
-  // Move todos os containers encontrados para dentro dos wrappers
   containersToWrap.forEach((container) => {
     contentArea.appendChild(container);
   });
